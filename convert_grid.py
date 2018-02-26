@@ -17,9 +17,10 @@ ToDo:
 import argparse
 import csv
 from os.path import basename, join, splitext
+from sudoku_utils import print_sudoku
 
 
-def convert_sudoku_to_csv(file_name):
+def convert_sudoku_to_csv(file_name, view=False):
     """Convert a .txt or .ss file to csv.
 
     This funtion converts a file to csv format and saves the resulting output.
@@ -29,9 +30,11 @@ def convert_sudoku_to_csv(file_name):
 
     Args:
         file_name (str) Name of the file in ./raw_sudoku to be converted.
+        view=False      Display preview, defaults to false.
 
     """
     csv_name = splitext(basename(file_name))[0] + ".csv"
+    view_grid = []
 
     # Set input and output file paths
     input_path = join("./raw_sudoku", basename(file_name))
@@ -39,7 +42,7 @@ def convert_sudoku_to_csv(file_name):
 
     # Open input file and create output file
     with open(input_path, "r") as input_file:
-        with open(output_path, "w+") as output_file:
+        with open(output_path, "w+", newline='') as output_file:
             csv_writer = csv.writer(output_file, delimiter=",")
             for i, line in enumerate(input_file):
                 # Drop lines begining with "-"
@@ -54,7 +57,10 @@ def convert_sudoku_to_csv(file_name):
                         number_line.append(0)
                 # Ensure that the line length = 9
                 assert len(number_line) == 9
+                view_grid = view_grid + number_line
                 csv_writer.writerow(number_line)
+    if view:
+        print_sudoku(view_grid)
 
 
 if __name__ == "__main__":
@@ -66,4 +72,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     parser.add_argument('-i', '--input', help="Name of file.", required=True)
     args = parser.parse_args()
-    convert_sudoku_to_csv(args.input)
+
+    # Convert sudoku grid to csv
+    convert_sudoku_to_csv(args.input, view=True)
