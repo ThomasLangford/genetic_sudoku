@@ -11,8 +11,11 @@ import csv
 def print_row(row):
     """Print each char in a list.
 
+    This procedure prints each charecter in a given list and then appends an
+    end line to the end while flushing the input buffer.
+
     args:
-        row (list) list representing a row of a Sudoku grid
+        row (list)         List representing a row of a Sudoku grid
     """
     for c in row:
         print(c, end=" ", flush=True)
@@ -20,10 +23,14 @@ def print_row(row):
 
 
 def print_sudoku(sudoku_gene):
-    """Print Sudoku genes as grids.
+    """Print Sudoku genes as Sudoku grids.
+
+    This procedure takes a Sudoku grid encoded as a list of 81 numbers, with
+    0 representing blanks and prints it to console in the traditional 9x9
+    grid format with accompanying 3x3 boxes.
 
     args:
-        sudoku_gene (list) Genetic representation of a Sudoku grid.
+        sudoku_gene (list)  Genetic representation of a Sudoku grid.
     """
     row = []
     row_count = 0
@@ -41,7 +48,16 @@ def print_sudoku(sudoku_gene):
 
 
 def save_sudoku(sudoku_gene, output_path):
-    """Save Sudoku as a csv."""
+    """Save a Sudoku gene list as a csv.
+
+    This procedure saves the genetic representation of the sudoku grid and
+    saves it as a 9x9 grid within a csv file. Due to the limitations of the
+    file format and for ease of use the function omits the boundry lines for
+    the 3x3 subgrids as well as the outer border lines of the grid.
+
+    args:
+        sudoku_gene (list)   Genetic representation of a Sudoku grid.
+    """
     with open(output_path, "w+", newline='') as output_file:
         csv_writer = csv.writer(output_file, delimiter=",")
         number_line = []
