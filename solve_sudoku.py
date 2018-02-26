@@ -11,3 +11,15 @@ Flags:
 Example:
     $ python convert_grid.py -i Grid1.csv -p 10
 """
+# Elitist Generational
+# Selection Criteria
+#   Tournament selection to generate a 2*(popsize-1) collection of parents
+# Crossover
+#  Binary Crossover - since crossing over using this method ignores the
+#  imovable bits. Set the crossover change to 0.3?
+# Mutation Operator:
+#  M-gene mutation based on chance? Or just one gene?
+#  Swap mutation is bad because it may not remove duplicate numbers?
+# Termination Criteria:
+#  Early stopping, ten(?) generations of no change
+#  If the best solution has a fitness function of 0

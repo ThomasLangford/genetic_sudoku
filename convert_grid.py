@@ -10,8 +10,6 @@ Flags:
 Example:
     $ python convert_grid.py -i Grid1.ss
 
-ToDo:
-    Import sudoku print method to print out the final array before saving.
 """
 
 import argparse
