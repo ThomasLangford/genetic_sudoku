@@ -1,2 +1,2 @@
-# genetic_sudoku-
+# genetic_sudoku
 A using genetic algorithms to solve a game of Sudoku.
