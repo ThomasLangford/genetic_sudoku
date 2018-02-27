@@ -16,6 +16,9 @@ import argparse
 from os.path import basename, join, splitext
 from sudoku_utils import print_sudoku, save_sudoku
 
+SS_PATH = "./raw_sudoku"
+CSV_PATH = "./csv_sudoku"
+
 
 def convert_sudoku_to_csv(file_name, view=False):
     """Convert a .txt or .ss file to csv.
@@ -34,8 +37,8 @@ def convert_sudoku_to_csv(file_name, view=False):
     sudoku_grid = []
 
     # Set input and output file paths
-    input_path = join("./raw_sudoku", basename(file_name))
-    output_path = join("./csv_sudoku", csv_name)
+    input_path = join(SS_PATH, basename(file_name))
+    output_path = join(CSV_PATH, csv_name)
 
     # Open input file and create output file
     with open(input_path, "r") as input_file:

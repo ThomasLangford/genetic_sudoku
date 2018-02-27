@@ -88,3 +88,4 @@ def print_sudoku(sudoku_gene):
             row = []
         elif (i + 1) % 3 == 0:
             row.append("|")
+    print()
