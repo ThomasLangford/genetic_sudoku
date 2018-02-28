@@ -19,7 +19,7 @@ ToDo:
 
 from sudoku_utils import read_sudoku, print_sudoku
 from os.path import basename, join
-from random import randint, random, sample
+from random import randint, random, sample, randrange
 import numpy as np
 
 CSV_PATH = "./csv_sudoku"
@@ -153,17 +153,17 @@ def evaluate_individual(sudoku_gene):
     """Get the fitness score of an individual within a population."""
     score = 0
     boxes = get_boxes(sudoku_gene)
-    rows = get_rows(sudoku_gene)
+    # rows = get_rows(sudoku_gene)
     columns = get_columns(sudoku_gene)
 
     for box in boxes:
         score += len(set(box))
-    for row in rows:
-        score += len(set(row))
+    # for row in rows:
+    #     score += len(set(row))
     for column in columns:
         score += len(set(column))
 
-    return score/243
+    return score/162
 
 
 def evaluate_population(population_array):
@@ -183,6 +183,28 @@ def tournament_selection(population_array, fitness_array, t_size, t_select):
             tournament_list.append(randint(0, population_array.shape[0]-1))
         tournament_fitnesses = [fitness_array[i] for i in tournament_list]
         parents[i] = tournament_list[np.argmax(tournament_fitnesses)]
+    return parents
+
+
+def small_tournament_selection(population_array, fitness_array, t_size,
+                               t_select):
+    """Select parents from the population using tournament selection."""
+    parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
+
+    # for i in range(t_select):
+    #     tournament_list = []
+    #     for j in range(t_size):
+    #         tournament_list.append(randint(0, population_array.shape[0]-1))
+    #     winner = np.argmax([fitness_array[i] for i in tournament_list])
+    #     print(len(fitness_array))
+    #     parents[i] = population_array[winner]
+    for i in range(t_select):
+        pop_zip = zip(population_array, fitness_array)
+        tournament_list = sample(list(pop_zip), t_size)
+        genes, fitnesses = zip(*tournament_list)
+        winner_index = np.argmax(fitnesses)
+        # print(i, fitnesses[winner_index])
+        parents[i] = genes[winner_index]
     return parents
 
 
@@ -231,6 +253,45 @@ def create_offspring(population_array, parents, crossover_rate):
     return np.asarray(offspring, dtype=np.uint8)
 
 
+def row_crossover(parent_1, parent_2, crossover_rate, fixed_indicies):
+    """Create two offspring genes from two parent genees.
+
+    Talk about binary mask crossover.
+    """
+    if random() < crossover_rate:
+        offspring1 = []
+        offspring2 = []
+        binary_mask = [randint(0, 1) for _ in range(0, len(parent_1), 9)]
+        for i, binary in enumerate(binary_mask):
+            start = i * 9
+            end = i * 9 + 9
+            for j in range(start, end):
+                    if binary:
+                        offspring1.append(parent_1[j])
+                        offspring2.append(parent_2[j])
+                    else:
+                        offspring1.append(parent_2[j])
+                        offspring2.append(parent_1[j])
+    else:
+        offspring1 = parent_1.copy()
+        offspring2 = parent_2.copy()
+    return offspring1, offspring2
+
+
+def create_children(parents, crossover_rate, n_children, fixed_indicies):
+    """Create offspring using by crossover from pairs of parents."""
+    offspring = []
+    for i in range(n_children):
+        parent_sample = sample(list(parents), 2)
+        parent_1_gene = parent_sample[0]
+        parent_2_gene = parent_sample[1]
+        child_1, child_2 = row_crossover(parent_1_gene, parent_2_gene,
+                                         crossover_rate, fixed_indicies)
+        offspring.append(list(child_1))
+        offspring.append(list(child_2))
+    return np.asarray(offspring)
+
+
 def old_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
     """Mutate all the offspring to produce distrinct offspring."""
     for i, child in enumerate(offspring_array):
@@ -251,15 +312,24 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
     """Mutate all the offspring to produce distrinct offspring."""
     for i, child in enumerate(offspring_array):
         if random() < mutation_rate:
-            swap_index_1 = randint(0, len(child)-1)
-            swap_index_2 = randint(0, len(child)-1)
-            while fixed_indicies[swap_index_1] or fixed_indicies[swap_index_2]:
-                swap_index_1 = randint(0, len(child)-1)
-                swap_index_2 = randint(0, len(child)-1)
+            rand_row = randrange(0, len(child), 9)
+            swap_index_1 = rand_row + randint(0, 8)
+            swap_index_2 = rand_row + randint(0, 8)
+            while (swap_index_1 == swap_index_2 or fixed_indicies[swap_index_1]
+                   or fixed_indicies[swap_index_2]):
+                swap_index_1 = rand_row + randint(0, 8)
+                swap_index_2 = rand_row + randint(0, 8)
+            # print("1", swap_index_1)
+            # print("2", swap_index_2)
             swap_temp = child[swap_index_1]
             child[swap_index_1] = child[swap_index_2]
             child[swap_index_2] = swap_temp
-        offspring_array[i] = child
+            # score = 0
+            # rows = get_rows(child)
+            # for row in rows:
+            #     score += len(set(row))
+            # print(score)
+            offspring_array[i] = child
     return offspring_array
 
 
@@ -277,6 +347,25 @@ def m_gene_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
     return offspring_array
 
 
+def replace_first_worst(offspring, population_array, fitness_array):
+    """Replace the first worst chromosome with a child in the population."""
+    offspring_fitness = [f for f in evaluate_individual(offspring)]
+    for i, fitness in enumerate(offspring_fitness):
+        print("todo")
+    return population_array, fitness_array
+
+
+def replace_worst(offspring, population_array, fitness_array):
+    """Replace the worst chromosome with a child in the population."""
+    offspring_fitness = [evaluate_individual(child) for child in offspring]
+    for i, fitness in enumerate(offspring_fitness):
+        worst_index = np.argmin(fitness_array)
+        fitness_array[worst_index] = fitness
+
+        population_array[worst_index] = offspring[i]
+    return population_array, fitness_array
+
+
 def solved_sudoku(file_name, pop_size):
     """Solve a Sudoku problem using genetic algorithms.
 
@@ -284,11 +373,14 @@ def solved_sudoku(file_name, pop_size):
         file_name (str) Name of the sudoku file in csv_sudoku.
         pop_size (int)  Number of individuals in the population.
     """
-    max_generations = 1000
-    crossover_rate = 0.1
+    max_generations = 100000
+    crossover_rate = 1
     mutation_rate = 0.5
-    tournmanet_size = int(pop_size/20)+1
-    n_parents = pop_size
+    tournmanet_size = int(pop_size/2)
+    tournament_rate = 0.8
+
+    n_children = int(pop_size/100)+1
+    n_parents = (int(pop_size/100)+1)*2
 
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
@@ -307,25 +399,22 @@ def solved_sudoku(file_name, pop_size):
     print("Best inital fitness: ", best_fitness)
 
     generation = 0
-    while generation < max_generations and best_fitness < 1:
-        parents = tournament_selection(population_array, fitness_array,
-                                       tournmanet_size, n_parents)
-        # parents = random_selection(population_array, fitness_array,
-        #                            tournmanet_size, n_parents)
-        children = create_offspring(population_array, parents, crossover_rate)
-        # print(len(children))
-        population_array = swap_mutate_offspring(children, mutation_rate,
-                                                 fixed_indicies)
-        print(len(population_array))
-        fitness_array = evaluate_population(population_array)
-        # worst_index = np.argmin(fitness_array)
-        # fitness_array[worst_index] = best_fitness
-        # population_array[worst_index] = best_gene
 
+    while generation < max_generations and best_fitness < 1:
+        parents = small_tournament_selection(population_array, fitness_array,
+                                             tournmanet_size, n_parents)
+        children = create_children(parents, crossover_rate, n_children,
+                                   fixed_indicies)
+        children = swap_mutate_offspring(children, mutation_rate,
+                                         fixed_indicies)
+        population_array, fitness_array = replace_worst(children,
+                                                        population_array,
+                                                        fitness_array)
         best_index = np.argmax(fitness_array)
         best_fitness = fitness_array[best_index]
         best_gene = population_array[best_index]
-        print("Generation:", generation, "=", best_fitness)
+        # print_sudoku(best_gene)
+        print("Generation:", str(generation).zfill(5), "=", best_fitness)
         generation += 1
     print_sudoku(best_gene)
 
@@ -337,4 +426,4 @@ if __name__ == "__main__":
     #     print(box)
     # for row in get_rows(gene):
     #     print(row)
-    solved_sudoku("Grid3.csv", 1000)
+    solved_sudoku("Grid1.csv", 1000)
