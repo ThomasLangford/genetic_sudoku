@@ -234,7 +234,7 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
             swap_temp = mutant[swap_index_1]
             mutant[swap_index_1] = mutant[swap_index_2]
             mutant[swap_index_2] = swap_temp
-            # if evaluate_individual(child) < evaluate_individual(mutant):
+            # if(evaluate_individual(mutant) >= evaluate_individual(child)):
             offspring_array[i] = mutant
     return offspring_array
 
@@ -242,10 +242,16 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
 def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
                  mutation_rate=0.5):
     """Solve a Sudoku problem using genetic algorithms.
+
     args:
         file_name (str) Name of the sudoku file in csv_sudoku.
         pop_size (int)  Number of individuals in the population.
     """
+    tournament_select = pop_size
+    # tournament_size = int(pop_size/2)
+    tournament_size = 2
+    n_children = pop_size
+
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
     fixed_indicies = np.asarray([0 if n == 0 else 1 for n in sudoku_grid],
@@ -259,12 +265,17 @@ def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
     count = 0
 
     while count < max_generations and best_score != 1:
-        selection = tournament_selection(population, fitnesses, 10, 5)
-        children = create_children(selection, crossover_rate, 10)
+        # prev_best = population[np.argmax(fitnesses)]
+        selection = tournament_selection(population, fitnesses,
+                                         tournament_select, tournament_size)
+        children = create_children(selection, crossover_rate, n_children)
         mutants = swap_mutate_offspring(children, mutation_rate,
                                         fixed_indicies)
         population = mutants
         fitnesses = evaluate_population(population)
+        # current_worse = np.argmin(fitnesses)
+        # population[current_worse] = prev_best
+        # fitnesses[current_worse] = best_score
         best_score = max(fitnesses)
         count += 1
         print("Generation", str(count).zfill(4), best_score)
@@ -272,7 +283,7 @@ def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
 
 
 if __name__ == "__main__":
-    solve_sudoku("Grid2.csv", 1000)
+    solve_sudoku("Grid2.csv", 10000, max_generations=10000)
     # population = initalise_population(sudoku_grid, 10)
     # fitnesses = evaluate_population(population)
     # selection = tournament_selection(population, fitnesses, 10, 5)
