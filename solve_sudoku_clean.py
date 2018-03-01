@@ -21,6 +21,7 @@ from sudoku_utils import read_sudoku, print_sudoku
 from os.path import basename, join
 from random import randint, random, sample, randrange, shuffle
 import numpy as np
+import argparse
 
 CSV_PATH = "./csv_sudoku"
 OUT_PATH = "./solved_sudoku"
@@ -254,7 +255,7 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
     return offspring_array
 
 
-def solve_sudoku(file_name, pop_size, max_generations=100, crossover_rate=1,
+def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
                  mutation_rate=0.5, tournament_size=2):
     """Solve a Sudoku problem using genetic algorithms.
 
@@ -264,6 +265,9 @@ def solve_sudoku(file_name, pop_size, max_generations=100, crossover_rate=1,
     """
     tournament_select = pop_size
     n_children = pop_size
+    count = 0
+    platau_count = 0
+    platau_limit = 1000
 
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
@@ -271,44 +275,46 @@ def solve_sudoku(file_name, pop_size, max_generations=100, crossover_rate=1,
                                 dtype=np.uint8)
     population = initalise_population(sudoku_grid, pop_size)
     fitnesses = evaluate_population(population)
-
     best_score = max(fitnesses)
     print("Inital best fitness = ", best_score)
 
-    count = 0
-
-    while count < max_generations and best_score != 1:
-        # prev_best = population[np.argmax(fitnesses)]
+    while (count < max_generations and best_score != 1
+           and platau_count != platau_limit):
+        prev_best = best_score
         selection = tournament_selection(population, fitnesses,
                                          tournament_select, tournament_size)
         children = create_children(selection, crossover_rate, n_children)
-        mutants = swap_mutate_offspring(children, mutation_rate,
-                                        fixed_indicies)
-        population = mutants
+        population = swap_mutate_offspring(children, mutation_rate,
+                                           fixed_indicies)
+        # population = mutants
         fitnesses = evaluate_population(population)
-        # current_worse = np.argmin(fitnesses)
-        # population[current_worse] = prev_best
-        # fitnesses[current_worse] = best_score
         best_score = max(fitnesses)
         count += 1
+        if prev_best == best_score:
+            platau_count += 1
+        else:
+            platau_count = 0
         print("Generation", str(count).zfill(4), best_score)
-    print_sudoku(population[np.argmax(fitnesses)])
+
     if best_score >= 1:
-        print(check_valid(population[np.argmax(fitnesses)], sudoku_grid))
+        print("Found a solution:")
+        assert check_valid(population[np.argmax(fitnesses)], sudoku_grid)
+    elif platau_count == platau_limit:
+        print("Local Minima Found. Best solution:")
+    else:
+        print("No solution found. Best solution:")
+    print_sudoku(population[np.argmax(fitnesses)])
 
 
 if __name__ == "__main__":
-    solve_sudoku("Grid1.csv", 1000, max_generations=10000)
-    # population = initalise_population(sudoku_grid, 10)
-    # fitnesses = evaluate_population(population)
-    # selection = tournament_selection(population, fitnesses, 10, 5)
-    # children = create_children(selection, 1, 10)
-    # print(len(children))
-    #
-    #
-    # print(len(mutants))
-    # for child in children:
-    #     print(check_positions(child, sudoku_grid))
-    # for mutant in mutants:
-    #     print(check_positions(mutant, sudoku_grid))
-    #     print_sudoku(mutant)
+    desc = "Solve a Sudoku puzzle using Genetic Algorithms."
+    epilog = "For more information please read the README."
+
+    # Create Argument parset
+    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    parser.add_argument('-i', '--input', help="Name of file.",
+                        required=True)
+    parser.add_argument('-p', '--population', help="Population size.",
+                        required=True, type=int)
+    args = parser.parse_args()
+    solve_sudoku(args.input, int(args.population))
