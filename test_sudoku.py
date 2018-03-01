@@ -19,9 +19,34 @@ import argparse
 
 
 if __name__ == "__main__":
+    # desc = "Solve a Sudoku puzzle using Genetic Algorithm for a range of pops."
+    # n_repeats = 5
+    # populations = [10, 100, 1000, 10000]
+    #
+    # parser = argparse.ArgumentParser(description=desc)
+    # parser.add_argument('-i', '--input', help="Name of file.",
+    #                     required=True)
+    # args = parser.parse_args()
+    # sudoku = args.input
+    #
+    # for population in populations:
+    #     out_name = os.path.splitext(sudoku)[0]+"_"+str(population)+".txt"
+    #     print(out_name)
+    #     out_path = os.path.join("./logs", out_name)
+    #     orig_stdout = sys.stdout
+    #     with open(out_path, 'w+') as f:
+    #         for i in range(n_repeats):
+    #
+    #                 sys.stdout = f
+    #                 print()
+    #                 print("File:", sudoku, " Pop:", population, " trail:", i+1)
+    #                 solve_sudoku(sudoku, population)
+    #                 print("************")
+    #                 print()
+    #     sys.stdout = orig_stdout
     desc = "Solve a Sudoku puzzle using Genetic Algorithm for a range of pops."
     n_repeats = 5
-    populations = [10, 100, 1000, 10000]
+    populations = [10000]
 
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('-i', '--input', help="Name of file.",
@@ -33,14 +58,16 @@ if __name__ == "__main__":
         out_name = os.path.splitext(sudoku)[0]+"_"+str(population)+".txt"
         print(out_name)
         out_path = os.path.join("./logs", out_name)
-        orig_stdout = sys.stdout
+
         with open(out_path, 'w+') as f:
             for i in range(n_repeats):
-
+                    print(i)
+                    orig_stdout = sys.stdout
                     sys.stdout = f
                     print()
                     print("File:", sudoku, " Pop:", population, " trail:", i+1)
-                    solve_sudoku(sudoku, population)
+                    solve_sudoku(sudoku, population, max_generations=500)
                     print("************")
                     print()
-        sys.stdout = orig_stdout
+                    sys.stdout = orig_stdout
+    # test_sudoku.py -i Grid3.csv & shutdown -s

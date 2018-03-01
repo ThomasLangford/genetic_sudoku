@@ -267,7 +267,7 @@ def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
     n_children = pop_size
     count = 0
     platau_count = 0
-    platau_limit = 1000
+    platau_limit = 100
 
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
