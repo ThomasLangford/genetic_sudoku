@@ -97,10 +97,20 @@ def check_positions(to_check, original):
 
 def check_valid(to_check, original):
     """Check that the preset grid numbers form a valid solution."""
-    correct = True
-    for i in range(len(original)):
-        if original[i] != 0 and original[i] != to_check[i]:
-            correct = False
+    correct = check_positions(to_check, original)
+    if correct:
+        for row in get_rows(to_check):
+            correct = len(set(row)) == 9
+            correct = sum(row) == 45
+    if correct:
+        for column in get_columns(to_check):
+            correct = len(set(column)) == 9
+            correct = sum(column) == 45
+    if correct:
+        for box in get_boxes(to_check):
+            correct = len(set(box)) == 9
+            correct = sum(box) == 45
+
     return correct
 
 
@@ -145,15 +155,15 @@ def initalise_population(sudoku_gene, pop_size):
 def evaluate_individual(sudoku_gene):
     """Get the fitness score of an individual within a population."""
     score = 0
-    boxes = get_boxes(sudoku_gene)
+    # boxes = get_boxes(sudoku_gene)
     # rows = get_rows(sudoku_gene)
-    columns = get_columns(sudoku_gene)
+    # columns = get_columns(sudoku_gene)
 
-    for box in boxes:
+    for box in get_boxes(sudoku_gene):
         score += len(set(box))
     # for row in rows:
     #     score += len(set(row))
-    for column in columns:
+    for column in get_columns(sudoku_gene):
         score += len(set(column))
 
     return score/162
@@ -171,12 +181,18 @@ def tournament_selection(population_array, fitness_array, t_select, t_size):
     """Select parents from the population using tournament selection."""
     parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
     for i in range(t_select):
-        pop_zip = list(zip(population_array, fitness_array))
-        tournament_list = sample(pop_zip, t_size)
+        # pop_zip = list(zip(population_array, fitness_array))
+        # tournament_list = sample(pop_zip, t_size)
+        # shuffle(tournament_list)
+        # genes, fitnesses = zip(*tournament_list)
+        # winner_index = np.argmax(fitnesses)
+        # parents[i] = genes[winner_index]
+        tournament_list = sample([j for j in range(len(population_array))],
+                                 t_size)
         shuffle(tournament_list)
-        genes, fitnesses = zip(*tournament_list)
-        winner_index = np.argmax(fitnesses)
-        parents[i] = genes[winner_index]
+        t_fitnesses = [fitness_array[j] for j in tournament_list]
+        winner_index = tournament_list[np.argmax(t_fitnesses)]
+        parents[i] = population_array[winner_index]
     return parents
 
 
@@ -234,13 +250,12 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
             swap_temp = mutant[swap_index_1]
             mutant[swap_index_1] = mutant[swap_index_2]
             mutant[swap_index_2] = swap_temp
-            # if(evaluate_individual(mutant) >= evaluate_individual(child)):
             offspring_array[i] = mutant
     return offspring_array
 
 
-def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
-                 mutation_rate=0.5):
+def solve_sudoku(file_name, pop_size, max_generations=100, crossover_rate=1,
+                 mutation_rate=0.5, tournament_size=2):
     """Solve a Sudoku problem using genetic algorithms.
 
     args:
@@ -248,8 +263,6 @@ def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
         pop_size (int)  Number of individuals in the population.
     """
     tournament_select = pop_size
-    # tournament_size = int(pop_size/2)
-    tournament_size = 2
     n_children = pop_size
 
     file_path = join(CSV_PATH, basename(file_name))
@@ -280,10 +293,12 @@ def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
         count += 1
         print("Generation", str(count).zfill(4), best_score)
     print_sudoku(population[np.argmax(fitnesses)])
+    if best_score >= 1:
+        print(check_valid(population[np.argmax(fitnesses)], sudoku_grid))
 
 
 if __name__ == "__main__":
-    solve_sudoku("Grid2.csv", 10000, max_generations=10000)
+    solve_sudoku("Grid1.csv", 1000, max_generations=10000)
     # population = initalise_population(sudoku_grid, 10)
     # fitnesses = evaluate_population(population)
     # selection = tournament_selection(population, fitnesses, 10, 5)
