@@ -178,6 +178,29 @@ def evaluate_population(population_array):
     return fitness_array
 
 
+def duel_tournament_selection(population_array, fitness_array, t_select, t_size,
+                              duel_selection):
+    """Select parents from the population using tournament selection."""
+    parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
+    for i in range(t_select):
+        # pop_zip = list(zip(population_array, fitness_array))
+        # tournament_list = sample(pop_zip, t_size)
+        # shuffle(tournament_list)
+        # genes, fitnesses = zip(*tournament_list)
+        # winner_index = np.argmax(fitnesses)
+        # parents[i] = genes[winner_index]
+        tournament_list = sample([j for j in range(len(population_array))],
+                                 t_size)
+        shuffle(tournament_list)
+        t_fitnesses = [fitness_array[j] for j in tournament_list]
+        if random() < duel_selection:
+            winner_index = tournament_list[np.argmax(t_fitnesses)]
+        else:
+            winner_index = tournament_list[np.argmin(t_fitnesses)]
+        parents[i] = population_array[winner_index]
+    return parents
+
+
 def tournament_selection(population_array, fitness_array, t_select, t_size):
     """Select parents from the population using tournament selection."""
     parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
@@ -260,7 +283,7 @@ def multi_mutate_offspring(offspring_array, mutation_rate, fixed_indicies,
     """Mutate all the offspring to produce distrinct offspring."""
     for i, child in enumerate(offspring_array):
         if random() < mutation_rate:
-            for n in randint(1, n_mutate):
+            for n in range(randint(1, n_mutate)):
                 mutant = child.copy()
                 rand_row = randrange(0, len(mutant), 9)
                 swap_index_1 = rand_row + randint(0, 8)
@@ -277,8 +300,25 @@ def multi_mutate_offspring(offspring_array, mutation_rate, fixed_indicies,
     return offspring_array
 
 
+def get_elites(population, fitnesses, n_elites):
+    """Get the the best individuals from a population."""
+    elites = np.zeros((n_elites, population.shape[1]), dtype=np.uint8)
+    zipped = list(sorted(zip(population, fitnesses), key=lambda x: x[1],
+                         reverse=True))
+    for x in range(n_elites):
+        elites[x] = zipped[x][0]
+    return elites
+
+
+def insert_elites(population, elites):
+    """Insert elites into population."""
+    for i in range(len(elites)):
+        population[i] = elites[i]
+    return population
+
+
 def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
-                 mutation_rate=0.5, tournament_size=2, mutli_mutate=False,
+                 mutation_rate=0.5, tournament_size=2, multi_mutate=False,
                  dual_selector=False, elitism=False):
     """Solve a Sudoku problem using genetic algorithms.
 
@@ -290,7 +330,9 @@ def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
     n_children = pop_size
     count = 0
     platau_count = 0
+    duel_selection = 0.8
     platau_limit = 100
+    n_elites = int(pop_size*0.05)
 
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
@@ -304,17 +346,28 @@ def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
     while (count < max_generations and best_score != 1
            and platau_count != platau_limit):
         prev_best = best_score
-        selection = tournament_selection(population, fitnesses,
-                                         tournament_select, tournament_size)
+        if elitism:
+            elites = get_elites(population, fitnesses, n_elites)
+        if dual_selector:
+            selection = duel_tournament_selection(population, fitnesses,
+                                                  tournament_select,
+                                                  tournament_size,
+                                                  duel_selection)
+        else:
+            selection = tournament_selection(population, fitnesses,
+                                             tournament_select,
+                                             tournament_size)
         children = create_children(selection, crossover_rate, n_children)
 
-        if mutli_mutate:
+        if multi_mutate:
             mutants = multi_mutate_offspring(children, mutation_rate,
                                              fixed_indicies)
         else:
             mutants = swap_mutate_offspring(children, mutation_rate,
                                             fixed_indicies)
-        if not elitism:
+        if elitism:
+            population = insert_elites(mutants, elites)
+        else:
             population = mutants
 
         fitnesses = evaluate_population(population)
@@ -348,4 +401,5 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--population', help="Population size.",
                         required=True, type=int)
     args = parser.parse_args()
-    solve_sudoku(args.input, int(args.population))
+    solve_sudoku(args.input, int(args.population), elitism=True,
+                 multi_mutate=True, dual_selector=True)
