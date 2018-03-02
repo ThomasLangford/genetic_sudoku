@@ -1,0 +1,8 @@
+***Log***
+Contains results for Genetic Algorithm run on grid 1,2 and 3.
+
+Configuration:
+tournament_size = 2
+Elitism = False
+Multi_mutation = False
+Duel_Selector = False

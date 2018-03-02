@@ -255,8 +255,31 @@ def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
     return offspring_array
 
 
+def multi_mutate_offspring(offspring_array, mutation_rate, fixed_indicies,
+                           n_mutate=5):
+    """Mutate all the offspring to produce distrinct offspring."""
+    for i, child in enumerate(offspring_array):
+        if random() < mutation_rate:
+            for n in randint(1, n_mutate):
+                mutant = child.copy()
+                rand_row = randrange(0, len(mutant), 9)
+                swap_index_1 = rand_row + randint(0, 8)
+                swap_index_2 = rand_row + randint(0, 8)
+                while (swap_index_1 == swap_index_2 or
+                       fixed_indicies[swap_index_1]
+                       or fixed_indicies[swap_index_2]):
+                    swap_index_1 = rand_row + randint(0, 8)
+                    swap_index_2 = rand_row + randint(0, 8)
+                swap_temp = mutant[swap_index_1]
+                mutant[swap_index_1] = mutant[swap_index_2]
+                mutant[swap_index_2] = swap_temp
+                offspring_array[i] = mutant
+    return offspring_array
+
+
 def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
-                 mutation_rate=0.5, tournament_size=2):
+                 mutation_rate=0.5, tournament_size=2, mutli_mutate=False,
+                 dual_selector=False, elitism=False):
     """Solve a Sudoku problem using genetic algorithms.
 
     args:
@@ -284,11 +307,19 @@ def solve_sudoku(file_name, pop_size, max_generations=10000, crossover_rate=1,
         selection = tournament_selection(population, fitnesses,
                                          tournament_select, tournament_size)
         children = create_children(selection, crossover_rate, n_children)
-        population = swap_mutate_offspring(children, mutation_rate,
-                                           fixed_indicies)
-        # population = mutants
+
+        if mutli_mutate:
+            mutants = multi_mutate_offspring(children, mutation_rate,
+                                             fixed_indicies)
+        else:
+            mutants = swap_mutate_offspring(children, mutation_rate,
+                                            fixed_indicies)
+        if not elitism:
+            population = mutants
+
         fitnesses = evaluate_population(population)
         best_score = max(fitnesses)
+
         count += 1
         if prev_best == best_score:
             platau_count += 1
