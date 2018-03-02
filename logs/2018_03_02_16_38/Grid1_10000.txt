@@ -1,0 +1,6 @@
+Mutli_mutate: True Elitism: True Dual_selector: True 
+File: Grid1.csv  Pop: 10000  trail: 1
+Inital best fitness =  0.907407407407
+Generation 0001 0.91975308642
+Generation 0002 0.944444444444
+Generation 0003 0.956790123457
