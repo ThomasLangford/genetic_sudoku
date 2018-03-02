@@ -1,0 +1,48 @@
+\documentclass[10pt]{article}
+\usepackage{helvet}
+\usepackage{graphicx}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+\usepackage{tabularx}
+\usepackage{placeins}
+\usepackage{longtable}
+\renewcommand{\familydefault}{\sfdefault}
+\begin{document}
+\title{%
+	Using Evolutionary Algorithms to Solve Sudoku Problems
+	}
+\author{640034510}
+\date{October 27, 2017}
+\maketitle
+
+\section{Introduction}
+% Implemented a generational evolutionary algorithm with tournament based selection
+\paragraph{•}
+The Sudoku puzzle is a combinatorial number placement where the player must fill a partially completed nine by nice grid with the numbers one to nine. These numbers must be placed in a way such that each row, column, and three by three sub grid contain a unique set. Due to this constraint on the placement of numbers, Sudoku proves to be a NP-complete problem which makes it impracticable to solve using a direct method. Instead a heuristic search method must be applied to the problem, of which the genetic algorithm metaheuristic is highlighted in this report. Inspired by the biological process of Meiosis, genetic algorithms encode potential solutions as population of chromosomes which undergo a series of genetic operators to produce offspring. Over successive generations of offspring, the average fitness of the population should increase until the final solution is found. 
+\section{Design}
+\subsection{Solution Space and Representation}
+\paragraph{•}
+The solution space for an empty nine by nine Sudoku grid is vast, with an approximate $6.67*10^{21}$ possible grids. As the number of clues given in a Sudoku puzzle increases then the possible solution space decreases but still remains large. To further reduce the size of the solution space, it was decided that all solutions must have valid rows. That is, all rows of an individual must contain some permutation of the set of numbers one to nine. All subsequent operators on a population must therefore conserve this rule to ensure that the search space remains reduced and errant solutions do not enter the population.
+
+\paragraph{•}
+Solutions are represented as a one dimensional list of integers, the length of which is set to the number of spaces in the Sudoku grid. This representation was chosen as it makes representing rows, columns, and grids within the solution trivial. Additionally, this representation allows for genetic operators, described below, to be applied to solution chromosomes in an analogous way to that of their biological counterparts. 
+\subsection{Fitness Function}
+\paragraph{•}
+The final success state of a Sudoku puzzle is one where the contents of each row, column, and box are a permutation of the numbers of the numbers one to nine. Therefore the fitness function first calculates the sum of the number of unique digits in each column and box. To normalize this number in the range of zero and one the sum is divided by the total possible number of unique digits in each row and column. In the case of a nine by nine Sudoku grid, the maximum number of unique digits in the rows and columns is 162. Rows have been excluded from this metric as all solutions already have valid rows which present the maximum score. By only including rows and columns, it increases the change in the fitness value for changes to rows and columns which move the solution to the optimum problem. Say something about zero being the worst and one being the best.
+
+
+\subsection{Crossover Function}
+\paragraph{•}
+\subsection{Mutation Function}
+\paragraph{•}
+\subsection{Population Initialisation}
+\paragraph{•}
+\subsection{Selection and Replacement}
+\paragraph{•}
+\subsection{Termination Criteria}
+\paragraph{•}
+\section{Experiments}
+\paragraph{•}
+\section{Questions}
+\paragraph{•}
+\end{document}
