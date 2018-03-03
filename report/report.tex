@@ -46,10 +46,12 @@ The mutation function chosen is a singe swap mutator which ensures that the resu
  
 
 \subsection{Termination Criteria}
-There are three termination criteria which halt the operation of the genetic algorithm. The first is when an optimal solution, the fitness function equals one, has been found as simply no more generations need to be produced. The second is when a thousand generations have been reached which allows time for small population sizes to reach a solution while not being overly long. This number is reduced to 200 in the case of a population size of 10000 due to the expectation that an optimal solution should be reached before. Finally, if there has been not change to the highest fitness function in a population for 200 generations then the runtime is terminated. The shows that a local maximum has been reached and the population has subsequently stagnated.
 \paragraph{•}
+There are three termination criteria which halt the operation of the genetic algorithm. The first is when an optimal solution, the fitness function equals one, has been found as simply no more generations need to be produced. The second is when a thousand generations have been reached which allows time for small population sizes to reach a solution while not being overly long. This number is reduced to 200 in the case of a population size of 10000 due to the expectation that an optimal solution should be reached before. Finally, if there has been not change to the highest fitness function in a population for 200 generations then the runtime is terminated. The shows that a local maximum has been reached and the population has subsequently stagnated.
+
 \section{Experiments}
 \paragraph{•}
+A number of experiments were designed and run to test the affect that various genetic operators have on the progress of a population towards a solution. These genetic operators were tested at a range of population sizes and on increasingly harder Sudoku problems. The first experiment run was on a genetic algorithm as described in the design section but without 
 \section{Questions}
 \paragraph{•}
 \end{document}

@@ -178,8 +178,8 @@ def evaluate_population(population_array):
     return fitness_array
 
 
-def duel_tournament_selection(population_array, fitness_array, t_select, t_size,
-                              duel_selection):
+def duel_tournament_selection(population_array, fitness_array, t_select,
+                              t_size, duel_selection):
     """Select parents from the population using tournament selection."""
     parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
     for i in range(t_select):
@@ -228,8 +228,7 @@ def row_crossover(parent_1, parent_2, crossover_rate):
     if random() < crossover_rate:
         offspring1 = []
         offspring2 = []
-        binary_mask = [0 for _ in range(0, len(parent_1), 9)]
-        binary_mask[randint(0, len(binary_mask)-1)] = 1
+        binary_mask = [randint(0, 1) for _ in range(0, len(parent_1), 9)]
         for i, binary in enumerate(binary_mask):
             start = i * 9
             end = i * 9 + 9
@@ -244,31 +243,6 @@ def row_crossover(parent_1, parent_2, crossover_rate):
         offspring1 = parent_1.copy()
         offspring2 = parent_2.copy()
     return offspring1, offspring2
-
-
-# def row_crossover(parent_1, parent_2, crossover_rate):
-#     """Create two offspring genes from two parent genees.
-#
-#     Talk about binary mask crossover.
-#     """
-#     if random() < crossover_rate:
-#         offspring1 = []
-#         offspring2 = []
-#         binary_mask = [randint(0, 1) for _ in range(0, len(parent_1), 9)]
-#         for i, binary in enumerate(binary_mask):
-#             start = i * 9
-#             end = i * 9 + 9
-#             for j in range(start, end):
-#                     if binary:
-#                         offspring1.append(parent_1[j])
-#                         offspring2.append(parent_2[j])
-#                     else:
-#                         offspring1.append(parent_2[j])
-#                         offspring2.append(parent_1[j])
-#     else:
-#         offspring1 = parent_1.copy()
-#         offspring2 = parent_2.copy()
-#     return offspring1, offspring2
 
 
 def create_children(parents, crossover_rate, n_children):
