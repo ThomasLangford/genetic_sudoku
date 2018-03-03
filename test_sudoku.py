@@ -46,15 +46,19 @@ if __name__ == "__main__":
 
     out_dir = os.path.join("./logs", time_string)
     print(out_dir)
+    print("Mutli_mutate: "+str(m_mutate)+" ")
+    print("Elitism: "+str(elitism)+" ")
+    print("Dual_selector: "+str(dual_selector)+" ")
+    print()
+
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-
     for population in populations:
         out_name = os.path.splitext(sudoku)[0]+"_"+str(population)+".txt"
         print(out_name)
         out_path = os.path.join(out_dir, out_name)
         if population == 10000:
-            max_g_c = 500
+            max_g_c = 150
         else:
             max_g_c = max_g
         with open(out_path, 'w+') as f:

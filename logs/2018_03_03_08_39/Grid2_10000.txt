@@ -1,0 +1,215 @@
+Mutli_mutate: True Elitism: True Dual_selector: True 
+File: Grid2.csv  Pop: 10000  trail: 1
+Inital best fitness =  0.87037037037
+Generation 0001 0.87037037037
+Generation 0002 0.876543209877
+Generation 0003 0.888888888889
+Generation 0004 0.901234567901
+Generation 0005 0.901234567901
+Generation 0006 0.901234567901
+Generation 0007 0.907407407407
+Generation 0008 0.938271604938
+Generation 0009 0.938271604938
+Generation 0010 0.938271604938
+Generation 0011 0.938271604938
+Generation 0012 0.956790123457
+Generation 0013 0.956790123457
+Generation 0014 0.956790123457
+Generation 0015 0.962962962963
+Generation 0016 0.962962962963
+Generation 0017 0.962962962963
+Generation 0018 0.962962962963
+Generation 0019 0.962962962963
+Generation 0020 0.975308641975
+Generation 0021 0.975308641975
+Generation 0022 1.0
+Found a solution:
+6 4 5 | 7 2 8 | 3 9 1 
+7 3 1 | 5 4 9 | 2 8 6 
+8 2 9 | 6 1 3 | 4 7 5 
+- - - - - - - - - - - 
+9 5 7 | 8 3 6 | 1 2 4 
+2 6 3 | 4 7 1 | 9 5 8 
+1 8 4 | 2 9 5 | 7 6 3 
+- - - - - - - - - - - 
+3 7 8 | 1 6 2 | 5 4 9 
+4 9 6 | 3 5 7 | 8 1 2 
+5 1 2 | 9 8 4 | 6 3 7 
+
+************
+
+
+File: Grid2.csv  Pop: 10000  trail: 2
+Inital best fitness =  0.845679012346
+Generation 0001 0.858024691358
+Generation 0002 0.882716049383
+Generation 0003 0.882716049383
+Generation 0004 0.888888888889
+Generation 0005 0.888888888889
+Generation 0006 0.895061728395
+Generation 0007 0.907407407407
+Generation 0008 0.91975308642
+Generation 0009 0.932098765432
+Generation 0010 0.932098765432
+Generation 0011 0.938271604938
+Generation 0012 0.938271604938
+Generation 0013 0.938271604938
+Generation 0014 0.950617283951
+Generation 0015 0.950617283951
+Generation 0016 0.969135802469
+Generation 0017 0.969135802469
+Generation 0018 0.969135802469
+Generation 0019 0.975308641975
+Generation 0020 0.987654320988
+Generation 0021 0.987654320988
+Generation 0022 0.987654320988
+Generation 0023 0.987654320988
+Generation 0024 0.987654320988
+Generation 0025 1.0
+Found a solution:
+6 4 5 | 7 2 8 | 3 9 1 
+7 3 1 | 5 4 9 | 2 8 6 
+8 2 9 | 6 1 3 | 4 7 5 
+- - - - - - - - - - - 
+9 5 7 | 8 3 6 | 1 2 4 
+2 6 3 | 4 7 1 | 9 5 8 
+1 8 4 | 2 9 5 | 7 6 3 
+- - - - - - - - - - - 
+3 7 8 | 1 6 2 | 5 4 9 
+4 9 6 | 3 5 7 | 8 1 2 
+5 1 2 | 9 8 4 | 6 3 7 
+
+************
+
+
+File: Grid2.csv  Pop: 10000  trail: 3
+Inital best fitness =  0.858024691358
+Generation 0001 0.87037037037
+Generation 0002 0.876543209877
+Generation 0003 0.882716049383
+Generation 0004 0.895061728395
+Generation 0005 0.895061728395
+Generation 0006 0.901234567901
+Generation 0007 0.907407407407
+Generation 0008 0.913580246914
+Generation 0009 0.932098765432
+Generation 0010 0.932098765432
+Generation 0011 0.932098765432
+Generation 0012 0.938271604938
+Generation 0013 0.938271604938
+Generation 0014 0.950617283951
+Generation 0015 0.956790123457
+Generation 0016 0.956790123457
+Generation 0017 0.956790123457
+Generation 0018 0.956790123457
+Generation 0019 0.975308641975
+Generation 0020 0.975308641975
+Generation 0021 0.975308641975
+Generation 0022 0.987654320988
+Generation 0023 0.987654320988
+Generation 0024 0.987654320988
+Generation 0025 0.987654320988
+Generation 0026 0.987654320988
+Generation 0027 1.0
+Found a solution:
+6 4 5 | 7 2 8 | 3 9 1 
+7 3 1 | 5 4 9 | 2 8 6 
+8 2 9 | 6 1 3 | 4 7 5 
+- - - - - - - - - - - 
+9 5 7 | 8 3 6 | 1 2 4 
+2 6 3 | 4 7 1 | 9 5 8 
+1 8 4 | 2 9 5 | 7 6 3 
+- - - - - - - - - - - 
+3 7 8 | 1 6 2 | 5 4 9 
+4 9 6 | 3 5 7 | 8 1 2 
+5 1 2 | 9 8 4 | 6 3 7 
+
+************
+
+
+File: Grid2.csv  Pop: 10000  trail: 4
+Inital best fitness =  0.858024691358
+Generation 0001 0.858024691358
+Generation 0002 0.888888888889
+Generation 0003 0.888888888889
+Generation 0004 0.901234567901
+Generation 0005 0.901234567901
+Generation 0006 0.907407407407
+Generation 0007 0.907407407407
+Generation 0008 0.925925925926
+Generation 0009 0.938271604938
+Generation 0010 0.938271604938
+Generation 0011 0.950617283951
+Generation 0012 0.950617283951
+Generation 0013 0.950617283951
+Generation 0014 0.950617283951
+Generation 0015 0.950617283951
+Generation 0016 0.956790123457
+Generation 0017 0.969135802469
+Generation 0018 0.969135802469
+Generation 0019 0.975308641975
+Generation 0020 0.975308641975
+Generation 0021 0.975308641975
+Generation 0022 0.975308641975
+Generation 0023 0.987654320988
+Generation 0024 0.987654320988
+Generation 0025 0.987654320988
+Generation 0026 1.0
+Found a solution:
+6 4 5 | 7 2 8 | 3 9 1 
+7 3 1 | 5 4 9 | 2 8 6 
+8 2 9 | 6 1 3 | 4 7 5 
+- - - - - - - - - - - 
+9 5 7 | 8 3 6 | 1 2 4 
+2 6 3 | 4 7 1 | 9 5 8 
+1 8 4 | 2 9 5 | 7 6 3 
+- - - - - - - - - - - 
+3 7 8 | 1 6 2 | 5 4 9 
+4 9 6 | 3 5 7 | 8 1 2 
+5 1 2 | 9 8 4 | 6 3 7 
+
+************
+
+
+File: Grid2.csv  Pop: 10000  trail: 5
+Inital best fitness =  0.858024691358
+Generation 0001 0.87037037037
+Generation 0002 0.876543209877
+Generation 0003 0.876543209877
+Generation 0004 0.882716049383
+Generation 0005 0.913580246914
+Generation 0006 0.913580246914
+Generation 0007 0.938271604938
+Generation 0008 0.938271604938
+Generation 0009 0.938271604938
+Generation 0010 0.938271604938
+Generation 0011 0.944444444444
+Generation 0012 0.944444444444
+Generation 0013 0.944444444444
+Generation 0014 0.950617283951
+Generation 0015 0.975308641975
+Generation 0016 0.975308641975
+Generation 0017 0.975308641975
+Generation 0018 0.975308641975
+Generation 0019 0.975308641975
+Generation 0020 0.987654320988
+Generation 0021 0.987654320988
+Generation 0022 0.987654320988
+Generation 0023 0.987654320988
+Generation 0024 0.987654320988
+Generation 0025 1.0
+Found a solution:
+6 4 5 | 7 2 8 | 3 9 1 
+7 3 1 | 5 4 9 | 2 8 6 
+8 2 9 | 6 1 3 | 4 7 5 
+- - - - - - - - - - - 
+9 5 7 | 8 3 6 | 1 2 4 
+2 6 3 | 4 7 1 | 9 5 8 
+1 8 4 | 2 9 5 | 7 6 3 
+- - - - - - - - - - - 
+3 7 8 | 1 6 2 | 5 4 9 
+4 9 6 | 3 5 7 | 8 1 2 
+5 1 2 | 9 8 4 | 6 3 7 
+
+************
+
