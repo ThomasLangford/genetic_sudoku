@@ -28,13 +28,13 @@ if __name__ == "__main__":
     time_string = time.strftime("%Y_%m_%d_%H_%M", local_time)
 
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('-i', '--input', help="Name of file.",
+    parser.add_argument('-i', '--input', help="name of file",
                         required=True)
-    parser.add_argument('-m', '--multi_mutate', help="Use multi mutate.",
+    parser.add_argument('-m', '--multi_mutate', help="use multi mutate",
                         required=False, action='store_true')
-    parser.add_argument('-e', '--elitism', help="Use elitism",
+    parser.add_argument('-e', '--elitism', help="use elitism",
                         required=False, action='store_true')
-    parser.add_argument('-d', '--duel_selector', help="Name of file.",
+    parser.add_argument('-d', '--duel_selector', help="use duel selector",
                         required=False, action='store_true')
     args = parser.parse_args()
 

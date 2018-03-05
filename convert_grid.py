@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     # Create Argument parset
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
-    parser.add_argument('-i', '--input', help="Name of file.", required=True)
+    parser.add_argument('-i', '--input', help="name of file to convert",
+                        required=True)
     args = parser.parse_args()
 
     # Convert sudoku grid to csv

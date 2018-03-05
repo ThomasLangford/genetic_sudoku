@@ -613,15 +613,15 @@ if __name__ == "__main__":
 
     # Create argument parser
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
-    parser.add_argument('-i', '--input', help="Name of file.",
+    parser.add_argument('-i', '--input', help="name of file to run",
                         required=True)
-    parser.add_argument('-p', '--population', help="Population size.",
+    parser.add_argument('-p', '--population', help="inital population size",
                         required=True, type=int)
-    parser.add_argument('-m', '--multi_mutate', help="Use multi mutate.",
+    parser.add_argument('-m', '--multi_mutate', help="use multi mutate",
                         required=False, action='store_true')
-    parser.add_argument('-e', '--elitism', help="Use elitism",
+    parser.add_argument('-e', '--elitism', help="use elitism",
                         required=False, action='store_true')
-    parser.add_argument('-d', '--duel_selector', help="Name of file.",
+    parser.add_argument('-d', '--duel_selector', help="use duel selector",
                         required=False, action='store_true')
     args = parser.parse_args()
 
