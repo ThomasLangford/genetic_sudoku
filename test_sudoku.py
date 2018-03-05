@@ -73,7 +73,8 @@ if __name__ == "__main__":
                     print("File:", sudoku, " Pop:", population, " trail:", i+1)
                     solve_sudoku(sudoku, population, max_generations=max_g_c,
                                  multi_mutate=m_mutate, elitism=elitism,
-                                 dual_selector=dual_selector, mutation_rate=0.3)
+                                 dual_selector=dual_selector)
                     print("************")
+
                     print()
                     sys.stdout = orig_stdout
