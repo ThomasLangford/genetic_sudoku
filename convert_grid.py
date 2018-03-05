@@ -30,7 +30,9 @@ def convert_sudoku_to_csv(file_name, view=False):
 
     Args:
         file_name (str) Name of the file in ./raw_sudoku to be converted.
-        view (bool)     Display preview, defaults to false.
+        view (bool)     Set to display preview. (default False)
+    Returns:
+        None
 
     """
     csv_name = splitext(basename(file_name))[0] + ".csv"

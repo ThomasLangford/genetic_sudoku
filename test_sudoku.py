@@ -23,7 +23,6 @@ if __name__ == "__main__":
     n_repeats = 5
     populations = [10, 100, 1000, 10000]
     max_g = 1000
-    # populations = [10000]
 
     local_time = time.localtime()
     time_string = time.strftime("%Y_%m_%d_%H_%M", local_time)

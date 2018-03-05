@@ -15,10 +15,11 @@ def read_sudoku(input_path):
     the specified csv file. The csv file must not contain any spaces or extra
     white space at the end of each line. Additionally each number must be in
     a seperate cell with 0 representing blanks.
-    args:
+    Args:
         output_path (str)    Path of the file to be written to.
-    return:
+    Returns:
         One dimensional list representation of a sudoku gene.
+
     """
     sudoku_gene = []
     with open(input_path, "r", newline='') as input_file:
@@ -37,9 +38,12 @@ def save_sudoku(sudoku_gene, output_path):
     file format and for ease of use the function omits the boundry lines for
     the 3x3 subgrids as well as the outer border lines of the grid.
 
-    args:
+    Args:
         sudoku_gene (list)   Genetic representation of a Sudoku grid.
         output_path (str)    Path of the file to be written to.
+    Returns:
+        None
+
     """
     with open(output_path, "w+", newline='') as output_file:
         csv_writer = csv.writer(output_file, delimiter=",")
@@ -57,8 +61,11 @@ def print_row(row):
     This procedure prints each charecter in a given list and then appends an
     end line to the end while flushing the input buffer.
 
-    args:
+    Args:
         row (list)         List representing a row of a Sudoku grid
+    Returns:
+        None
+
     """
     for c in row:
         print(c, end=" ", flush=True)
@@ -72,8 +79,11 @@ def print_sudoku(sudoku_gene):
     0 representing blanks and prints it to console in the traditional 9x9
     grid format with accompanying 3x3 boxes.
 
-    args:
+    Args:
         sudoku_gene (list)  Genetic representation of a Sudoku grid.
+    Returns:
+        None
+
     """
     row = []
     row_count = 0
@@ -83,9 +93,11 @@ def print_sudoku(sudoku_gene):
             print_row(row)
             row_count += 1
             if (row_count) % 3 == 0 and row_count < 9:
+                # Print a horizonal box divider
                 dash_line = ["-" for i in range(11)]
                 print_row(dash_line)
             row = []
         elif (i + 1) % 3 == 0:
+            # Add a vertical box divider
             row.append("|")
     print()

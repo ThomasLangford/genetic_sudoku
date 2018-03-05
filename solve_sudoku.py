@@ -10,46 +10,18 @@ Flags:
     -i, --input         Name of the grid file in csv_sudoku to solve.
     -p, --population    Population size.
 Example:
-    $ python convert_grid.py -i Grid1.csv -p 10
+    $ python convert_grid.py -i Grid1.csv -p 10 -e -m -d
 
-ToDo:
-    Explain the grid indexing to produce rows, columns, boxes.
-    Finish docstrings, add arguments and returns
 """
 
 from sudoku_utils import read_sudoku, print_sudoku
 from os.path import basename, join
-from random import randint, random, sample, randrange
+from random import randint, random, sample, randrange, shuffle
 import numpy as np
+import argparse
 
 CSV_PATH = "./csv_sudoku"
 OUT_PATH = "./solved_sudoku"
-
-
-# Datatype is always np.uint8
-# Worse fitness is 243
-# Elitist Generational Genetic Algorithm
-# Fitness Function
-#  Minimise the number of non-unique numbers in each row, column, and 3x3 box
-#  0 being the best and infinity the worst
-# Selection Criteria
-#  Tournament selection to generate a 2*(popsize-1) collection of parents
-#  set t_size to 1/5 of population size
-#  Could be replaced with rank based selection if the tournmanet size is an
-#  issue with the low population sizes?
-# Crossover
-#  Binary Crossover - since crossing over using this method ignores the
-#  imovable bits. Set the crossover change to 0.3?
-# Mutation Operator:
-#  M-gene mutation based on chance? Or just one gene?
-#  Swap mutation is bad because it may not remove duplicate numbers?
-# Replacement
-#  Keep the best in the og population and replace all the rest with children?
-# Termination Criteria:
-#  Early stopping, ten(?) generations of no change
-#  If the best solution has a fitness function of 0
-#
-# Keep a list of the indexes which were og 0 and are not allowed to be changed.
 
 
 def get_rows(sudoku_gene):
@@ -58,10 +30,11 @@ def get_rows(sudoku_gene):
     This function converts a 1 dimensional list which represents the sudoku
     gene and converts it into a list of the columns represented as lists.
 
-    args:
+    Args:
         sudoku_gene (list)  List representing the sudoku grid.
-    return:
+    Returns:
         A two dimensional list of sudoku columns.
+
     """
     row_array = []
     for _ in range(9):
@@ -77,10 +50,11 @@ def get_columns(sudoku_gene):
     This function converts a 1 dimensional list which represents the sudoku
     gene and converts it into a list of the columns represented as lists.
 
-    args:
+    Args:
         sudoku_gene (list)  List representing the sudoku grid.
-    return:
+    Returns:
         A two dimensional list of sudoku columns.
+
     """
     column_array = []
     for _ in range(9):
@@ -96,10 +70,11 @@ def get_boxes(sudoku_gene):
     This function converts a 1 dimensional list which represents the sudoku
     gene and converts it into a list of the 3x3 boxes represented as lists.
 
-    args:
+    Args:
         sudoku_gene (list)  List representing the sudoku grid.
-    return:
+    Returns:
         A two dimensional list of sudoku boxes.
+
     """
     box_array = [[]]
     for i in range(3):
@@ -111,7 +86,60 @@ def get_boxes(sudoku_gene):
     return sum(box_array, [])
 
 
-def initalise_population(sudoku_gene, fixed_indicie, pop_size):
+def check_positions(to_check, original):
+    """Check that the preset grid numbers are still present in the original.
+
+    Each number within a gene is checked against the original fixed gene array,
+    if the fixed non zero number differes from that in the gene to be checked
+    then the gene to be checked is not valid.
+
+    Args:
+        to_check (list)  List representing the sudoku grid to check.
+        orignal (list)  List representing the fixed sudoku grid.
+    Returns:
+        True if the list is valid, false if not
+
+    """
+    correct = True
+    for i in range(len(original)):
+        if original[i] != 0 and original[i] != to_check[i]:
+            print("Incorrect index:", i)
+            correct = False
+    return correct
+
+
+def check_valid(to_check, original):
+    """Check that the preset grid numbers form a valid solution.
+
+    Each number within a gene is checked against the original fixed gene array,
+    while each row, column, and grid is checked to ensure that it contains
+    a valid permutation of the set 1 to 9.
+
+    Args:
+        to_check (list)  List representing the sudoku grid to check.
+        orignal (list)  List representing the fixed sudoku grid.
+    Returns:
+        True if the list is valid, False if not.
+
+    """
+    correct = check_positions(to_check, original)
+    if correct:
+        for row in get_rows(to_check):
+            correct = len(set(row)) == 9
+            correct = sum(row) == 45
+    if correct:
+        for column in get_columns(to_check):
+            correct = len(set(column)) == 9
+            correct = sum(column) == 45
+    if correct:
+        for box in get_boxes(to_check):
+            correct = len(set(box)) == 9
+            correct = sum(box) == 45
+
+    return correct
+
+
+def initalise_population(sudoku_gene, pop_size):
     """Initalise a population of Sudoku solutions.
 
     This function creates an array of randomly generated Sudoku solutions
@@ -119,144 +147,174 @@ def initalise_population(sudoku_gene, fixed_indicie, pop_size):
     integer in the range of 0 and 9 generated. In this way not all, if any
     of the solutions generated will be valid given the rules of Sudoku.
 
-    args:
+    Args:
         sudoku_gene (list)      List representing the sudoku grid.
         fixed_indicies (List)   Indexes which are not to be changed.
         pop_size (int)          Number of individuals in the population.
 
-    return:
+    Returns:
         A list of randomly generated Sudoku solutions.
+
     """
     population_array = np.zeros((pop_size, len(sudoku_gene)), dtype=np.uint8)
     for i in range(pop_size):
         new_pop = get_rows(sudoku_gene)
         for j, box in enumerate(new_pop):
+            # Calculate the complete set
             rand_set = [i for i in range(len(box)+1)]
             for n in set(box):
+                # Remove existing numbers from the set
                 rand_set.remove(n)
             for k, num in enumerate(box):
+                # For unset space, set the space to a number
+                # from the set then remove that number.
                 if num == 0:
                     rand_int = sample(rand_set, 1)[0]
                     new_pop[j][k] = rand_int
                     rand_set.remove(rand_int)
 
         population_array[i] = sum(new_pop, [])
-        # for j in range(len(sudoku_gene)):
-        #     if sudoku_gene[j] == 0:
-        #         population_array[i][j] = randint(1, 9)
-        #     else:
-        #         population_array[i][j] = sudoku_gene[j]
     return population_array
 
 
 def evaluate_individual(sudoku_gene):
-    """Get the fitness score of an individual within a population."""
-    score = 0
-    boxes = get_boxes(sudoku_gene)
-    # rows = get_rows(sudoku_gene)
-    columns = get_columns(sudoku_gene)
+    """Get the fitness score of an individual within a population.
 
-    for box in boxes:
+    This function calculates the fitness score of an indivudal for the length
+    of the set of numbers for each box and column within a solution.
+
+    Args:
+        sudoku_gene (list)      List representing the sudoku grid.
+    Returns:
+        A float value between 0 and 1 with 1 being the best and 0 the worst
+        score.
+
+    """
+    score = 0
+
+    for box in get_boxes(sudoku_gene):
         score += len(set(box))
-    # for row in rows:
-    #     score += len(set(row))
-    for column in columns:
+    for column in get_columns(sudoku_gene):
         score += len(set(column))
 
     return score/162
 
 
 def evaluate_population(population_array):
-    """Evaluate the fitness score of each individual in a population."""
+    """Evaluate the fitness score of each individual in a population.
+
+    For each member in a population, calculate their individual fitness score
+    and append it to a list to create an array of all the fitnesses in the
+    population.
+
+    Args:
+        population_array (list) A list containing all the solutions in a
+                                population.
+    Returns:
+        An array of all the fitness scores in a population.
+
+    """
     fitness_array = np.zeros((population_array.shape[0]))
     for i, individual in enumerate(population_array):
         fitness_array[i] = evaluate_individual(individual)
     return fitness_array
 
 
-def tournament_selection(population_array, fitness_array, t_size, t_select):
-    """Select parents from the population using tournament selection."""
-    parents = np.zeros((t_select), dtype=np.uint32)
-    for i in range(t_select):
-        tournament_list = []
-        for _ in range(t_size):
-            tournament_list.append(randint(0, population_array.shape[0]-1))
-        tournament_fitnesses = [fitness_array[i] for i in tournament_list]
-        parents[i] = tournament_list[np.argmax(tournament_fitnesses)]
-    return parents
+def duel_tournament_selection(population_array, fitness_array, t_select,
+                              t_size, duel_selection=0.8):
+    """Select parents from the population using tournament selection.
 
+    Generate a tournament pool and select the best individual from it to be
+    a parent for the next generation. However, this varient of the tournament
+    selector will select the worst individual at a rate goverend by the duel
+    selection chance.
 
-def small_tournament_selection(population_array, fitness_array, t_size,
-                               t_select):
-    """Select parents from the population using tournament selection."""
+    Args:
+        population_array (list) A list containing all the solutions in a
+                                population.
+        fitness_array (list)    A list containing all the fitnesses scores of a
+                                population.
+        t_select (int)          The number of parents to select.
+        t_size (int)            The number of individuals within each
+                                tournament.
+        duel_selector (float)   The chance to select the best canditate, worse
+                                otherwise (default 0.8).
+    Returns:
+        An array of the genes of the parents selected
+
+    """
     parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
 
-    # for i in range(t_select):
-    #     tournament_list = []
-    #     for j in range(t_size):
-    #         tournament_list.append(randint(0, population_array.shape[0]-1))
-    #     winner = np.argmax([fitness_array[i] for i in tournament_list])
-    #     print(len(fitness_array))
-    #     parents[i] = population_array[winner]
     for i in range(t_select):
-        pop_zip = zip(population_array, fitness_array)
-        tournament_list = sample(list(pop_zip), t_size)
-        genes, fitnesses = zip(*tournament_list)
-        winner_index = np.argmax(fitnesses)
-        # print(i, fitnesses[winner_index])
-        parents[i] = genes[winner_index]
-    return parents
+        tournament_list = sample([j for j in range(len(population_array))],
+                                 t_size)
+        # Shuffle the list to prevent argmax from selecting
+        # only one gene if there are multiple different genes
+        # with the best fitness functions.
+        shuffle(tournament_list)
+        t_fitnesses = [fitness_array[j] for j in tournament_list]
 
-
-def random_selection(population_array, fitness_array, t_size, t_select):
-    """Select parents from the population using random selection."""
-    parents = np.zeros((t_select), dtype=np.uint32)
-    for i in range(t_select):
-        parents[i] = randint(0, len(population_array)-1)
-    return parents
-
-
-def crossover(parent_1, parent_2, crossover_rate):
-    """Create a single offspring gene from two parent genees.
-
-    Talk about binary mask crossover.
-    """
-    offspring1 = []
-    offspring2 = []
-    binary_mask = [1 if random() < crossover_rate
-                   else 0 for _ in range(len(parent_1))]
-    for i in range(len(parent_1)):
-        if binary_mask[i]:
-            offspring1.append(parent_1[i])
-            offspring2.append(parent_2[i])
+        if random() < duel_selection:
+            winner_index = tournament_list[np.argmax(t_fitnesses)]
         else:
-            offspring1.append(parent_2[i])
-            offspring2.append(parent_1[i])
-    return offspring1, offspring2
+            winner_index = tournament_list[np.argmin(t_fitnesses)]
+        parents[i] = population_array[winner_index]
+
+    return parents
 
 
-def create_offspring(population_array, parents, crossover_rate):
-    """Create offspring using by crossover from pairs of parents."""
-    offspring = []
-    for i in range(int(len(parents)/2)):
-        parent_1 = -1
-        parent_2 = -1
-        while parent_1 == parent_2:
-            parent_1 = randint(0, parents.shape[0]-1)
-            parent_2 = randint(0, parents.shape[0]-1)
-        parent_1_gene = population_array[parents[parent_1]]
-        parent_2_gene = population_array[parents[parent_2]]
-        child_1, child_2 = crossover(parent_1_gene, parent_2_gene,
-                                     crossover_rate)
-        offspring.append(child_1)
-        offspring.append(child_2)
-    return np.asarray(offspring, dtype=np.uint8)
+def tournament_selection(population_array, fitness_array, t_select, t_size):
+    """Select parents from the population using tournament selection.
+
+    Generate a tournament pool and select the best individual from it to be
+    a parent for the next generation. This operator will always select the
+    best individual from the tournament.
+
+    Args:
+        population_array (list) A list containing all the solutions in a
+                                population.
+        fitness_array (list)    A list containing all the fitnesses scores of a
+                                population.
+        t_select (int)          The number of parents to select.
+        t_size (int)            The number of individuals within each
+                                tournament.
+        duel_selector (float)   The chance to select the best canditate, worse
+                                otherwise
+    Returns:
+        An array of the genes of the parents selected.
+
+    """
+    parents = np.zeros((t_select, population_array.shape[1]), dtype=np.uint32)
+
+    for i in range(t_select):
+        tournament_list = sample([j for j in range(len(population_array))],
+                                 t_size)
+        # Shuffle the list to prevent argmax from selecting
+        # only one gene if there are multiple different genes
+        # with the best fitness functions.
+        shuffle(tournament_list)
+        t_fitnesses = [fitness_array[j] for j in tournament_list]
+        winner_index = tournament_list[np.argmax(t_fitnesses)]
+        parents[i] = population_array[winner_index]
+
+    return parents
 
 
-def row_crossover(parent_1, parent_2, crossover_rate, fixed_indicies):
-    """Create two offspring genes from two parent genees.
+def row_crossover(parent_1, parent_2, crossover_rate=1):
+    """Create two offspring genes from two parent genes.
 
-    Talk about binary mask crossover.
+    This crossover operator shuffles the rows for the two parents to create
+    two children. Both children contain a combination of the rows of one
+    parent and the rows of the other, randomly determined.
+
+    Args:
+        parent_1 (list) A numerical list representing the genes of a parent.
+        parent_2 (list) A numerical list representing the genes of a parent.
+        crossover_rate (float) Chance that a crossover will occur (default 1).
+
+    Returns:
+        A tuple containing the pair of children.
+
     """
     if random() < crossover_rate:
         offspring1 = []
@@ -278,152 +336,295 @@ def row_crossover(parent_1, parent_2, crossover_rate, fixed_indicies):
     return offspring1, offspring2
 
 
-def create_children(parents, crossover_rate, n_children, fixed_indicies):
-    """Create offspring using by crossover from pairs of parents."""
+def create_children(parents, n_children, crossover_rate=1):
+    """Create a number of children from a list of parents.
+
+    This function selects two parents from the list of parents and creates
+    two kids from the function.
+
+    Args:
+        parents (list) A numerical list containting the genes of the parents.
+        n_children (int) The number of children to create, must be even.
+        crossover_rate (float) Chance that a crossover will occur (default 1).
+    Returns:
+        A list of the genes of the new children.
+
+    """
     offspring = []
-    for i in range(n_children):
+    for i in range(int(n_children/2)):
         parent_sample = sample(list(parents), 2)
         parent_1_gene = parent_sample[0]
         parent_2_gene = parent_sample[1]
         child_1, child_2 = row_crossover(parent_1_gene, parent_2_gene,
-                                         crossover_rate, fixed_indicies)
+                                         crossover_rate)
         offspring.append(list(child_1))
         offspring.append(list(child_2))
     return np.asarray(offspring)
 
 
-def old_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
-    """Mutate all the offspring to produce distrinct offspring."""
-    for i, child in enumerate(offspring_array):
-        mutant_child = []
-        for j in range(len(child)):
-            if fixed_indicies[j]:
-                mutant_child.append(child[j])
-            else:
-                if random() < mutation_rate:
-                    mutant_child.append(randint(1, 9))
-                else:
-                    mutant_child.append(child[j])
-        offspring_array[i] = mutant_child
-    return offspring_array
-
-
 def swap_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
-    """Mutate all the offspring to produce distrinct offspring."""
+    """Mutate all the offspring to produce distrinct offspring.
+
+    This genetic operator selects a row at random for an offspring and two
+    points within that row. If the two points are distinct and are not fixed
+    then the two points will be swapped. This is repeated for each child in the
+    offspring array based on the mutation rate.
+
+    Args:
+        offspring_array (list) A numerical list of the genes of all the
+                                children to be mutated.
+        mutation_rate (float) The chance that a mutation will occur.
+        fixed_indicies (list) A list of the indicies which are not to be
+                              changed by the mutation.
+    Returns:
+        A list of the genes of the new children.
+
+    """
     for i, child in enumerate(offspring_array):
         if random() < mutation_rate:
-            rand_row = randrange(0, len(child), 9)
+            mutant = child.copy()
+            # Generate the swap indexes.
+            rand_row = randrange(0, len(mutant), 9)
             swap_index_1 = rand_row + randint(0, 8)
             swap_index_2 = rand_row + randint(0, 8)
+            # Ensure that the indicies are not fixed or equal.
             while (swap_index_1 == swap_index_2 or fixed_indicies[swap_index_1]
                    or fixed_indicies[swap_index_2]):
                 swap_index_1 = rand_row + randint(0, 8)
                 swap_index_2 = rand_row + randint(0, 8)
-            # print("1", swap_index_1)
-            # print("2", swap_index_2)
-            swap_temp = child[swap_index_1]
-            child[swap_index_1] = child[swap_index_2]
-            child[swap_index_2] = swap_temp
-            # score = 0
-            # rows = get_rows(child)
-            # for row in rows:
-            #     score += len(set(row))
-            # print(score)
-            offspring_array[i] = child
+            # Swap the contents of the indicies.
+            swap_temp = mutant[swap_index_1]
+            mutant[swap_index_1] = mutant[swap_index_2]
+            mutant[swap_index_2] = swap_temp
+            offspring_array[i] = mutant
     return offspring_array
 
 
-def m_gene_mutate_offspring(offspring_array, mutation_rate, fixed_indicies):
-    """Mutate all the offspring to produce distrinct offspring."""
-    m = 1
+def multi_mutate_offspring(offspring_array, mutation_rate, fixed_indicies,
+                           n_mutate=5):
+    """Mutate all the offspring to produce distrinct offspring.
+
+    This genetic operator selects a row at random for an offspring and two
+    points within that row. If the two points are distinct and are not fixed
+    then the two points will be swapped. This is repeated for each child in the
+    offspring array based on the mutation rate. This mutation can occur
+    multiple times to the same individual.
+
+    Args:
+        offspring_array (list) A numerical list of the genes of all the
+                                children to be mutated.
+        mutation_rate (float) The chance that a mutation will occur.
+        fixed_indicies (list) A list of the indicies which are not to be
+                              changed by the mutation.
+        n_mutate (int) The number of times the mutation is applied to a
+                        child (default 5).
+    Returns:
+        A list of the genes of the new children.
+
+    """
     for i, child in enumerate(offspring_array):
         if random() < mutation_rate:
-            for _ in range(m):
-                mutate_index = randint(0, len(child)-1)
-                while fixed_indicies[mutate_index]:
-                    mutate_index = randint(0, len(child)-1)
-                child[mutate_index] = randint(1, 9)
-        offspring_array[i] = child
+            for n in range(randint(1, n_mutate)):
+                mutant = child.copy()
+                # Generate the swap indexes.
+                rand_row = randrange(0, len(mutant), 9)
+                swap_index_1 = rand_row + randint(0, 8)
+                swap_index_2 = rand_row + randint(0, 8)
+                # Ensure that the indicies are not fixed or equal.
+                while (swap_index_1 == swap_index_2 or
+                       fixed_indicies[swap_index_1]
+                       or fixed_indicies[swap_index_2]):
+                    swap_index_1 = rand_row + randint(0, 8)
+                    swap_index_2 = rand_row + randint(0, 8)
+                # Swap the contents of the indicies.
+                swap_temp = mutant[swap_index_1]
+                mutant[swap_index_1] = mutant[swap_index_2]
+                mutant[swap_index_2] = swap_temp
+                offspring_array[i] = mutant
     return offspring_array
 
 
-def replace_first_worst(offspring, population_array, fitness_array):
-    """Replace the first worst chromosome with a child in the population."""
-    offspring_fitness = [f for f in evaluate_individual(offspring)]
-    for i, fitness in enumerate(offspring_fitness):
-        print("todo")
-    return population_array, fitness_array
+def get_elites(population, fitness_array, n_elites):
+    """Get the the best individuals from a population.
+
+    Find the top individuals within a population and then save them to an
+    array.
+
+    Args:
+        population (list) A list of the genes for every indivudal in a
+        population.
+        fitness_array (list) A list containing all the fitnesses scores of a
+                              population.
+        n_elites (int) The number of elites to select from a population.
+    Returns:
+        A list of the top individuals of the population.
+
+    """
+    elites = np.zeros((n_elites, population.shape[1]), dtype=np.uint8)
+    zipped = list(sorted(zip(population, fitness_array), key=lambda x: x[1],
+                         reverse=True))
+    for x in range(n_elites):
+        elites[x] = zipped[x][0]
+    return elites
 
 
-def replace_worst(offspring, population_array, fitness_array):
-    """Replace the worst chromosome with a child in the population."""
-    offspring_fitness = [evaluate_individual(child) for child in offspring]
-    for i, fitness in enumerate(offspring_fitness):
-        worst_index = np.argmin(fitness_array)
-        fitness_array[worst_index] = fitness
+def insert_elites(population, elites):
+    """Insert the elites into the population.
 
-        population_array[worst_index] = offspring[i]
-    return population_array, fitness_array
+    This function takes the elites of the previous generation and inserts at
+    the head of the current generation, replacing what is currently there.
+    Args:
+        population (list) A list of the genes for every indivudal in a
+        population.
+        elites (list) A list of the individuals to be inserted into the
+                       population.
+    Returns:
+        A list of the genes for every indivudal in the population with the
+        elites added.
+
+    """
+    for i in range(len(elites)):
+        population[i] = elites[i]
+    return population
 
 
-def solved_sudoku(file_name, pop_size):
+def solve_sudoku(file_name, pop_size, max_generations=1000, crossover_rate=1,
+                 mutation_rate=0.5, tournament_size=2, multi_mutate=False,
+                 dual_selector=False, elitism=False):
     """Solve a Sudoku problem using genetic algorithms.
 
-    args:
-        file_name (str) Name of the sudoku file in csv_sudoku.
-        pop_size (int)  Number of individuals in the population.
+    This function runs the genetic algorithm, using the operators specified,
+    until the termination criteria is reached. Then this function will display
+    the best Sudoku grid that has been found by the algorithm. Parameters can
+    be set by the user and each parameter will have an effect on the efficiency
+    and final result. The default arguments have been set to those used in the
+    experiments in the report accompanying this program.
+    Args:
+        file_name (str)         Name of the sudoku file in csv_sudoku.
+        pop_size (int)          Number of individuals in the population.
+        max_generations (int)   The number of generations to be run before the
+                                    algorithm terminates (default 1000).
+        crossover_rate (float)  Chance that a crossover will occur (default 1).
+        mutation_rate (float)   The chance that a mutation will occur
+                                    (default 0.5).
+        tournament_size (int)   The number of individuals within each
+                                    tournament (default 2).
+        multi_mutate (bool)     Set to use the multi mutate operator (default
+                                    False).
+        dual_selector (bool)    Set to use the dual selection operator (default
+                                    False).
+        elitism (bool)          Set to use the elitism operator (default
+                                    False).
+    Returns:
+        None
+
     """
-    max_generations = 100000
-    crossover_rate = 1
-    mutation_rate = 0.5
-    tournmanet_size = int(pop_size/2)
-    tournament_rate = 0.8
+    # Set internal settings
+    tournament_select = pop_size
+    n_children = pop_size
+    duel_selection = 0.8
+    n_elites = int(pop_size*0.05)
 
-    n_children = int(pop_size/100)+1
-    n_parents = (int(pop_size/100)+1)*2
+    # Set generation counter and row limit
+    count = 0
+    platau_count = 0
+    platau_limit = 100
 
+    # Read grid from path
     file_path = join(CSV_PATH, basename(file_name))
     sudoku_grid = read_sudoku(file_path)
 
-    fixed_indicies = np.asarray([1 if n == 0 else 0 for n in sudoku_grid],
+    # Initalise the population
+    fixed_indicies = np.asarray([0 if n == 0 else 1 for n in sudoku_grid],
                                 dtype=np.uint8)
-    population_array = initalise_population(sudoku_grid, fixed_indicies,
-                                            pop_size)
+    population = initalise_population(sudoku_grid, pop_size)
+    fitnesses = evaluate_population(population)
 
-    print("Population Initalised")
+    best_score = max(fitnesses)
+    print("Inital best fitness = ", best_score)
 
-    fitness_array = evaluate_population(population_array)
-    best_index = np.argmax(fitness_array)
-    best_fitness = fitness_array[best_index]
-    best_gene = population_array[best_index]
-    print("Best inital fitness: ", best_fitness)
+    while (count < max_generations and best_score != 1
+           and platau_count != platau_limit):
+        prev_best = best_score
+        if elitism:
+            # Generate a list of elites
+            elites = get_elites(population, fitnesses, n_elites)
 
-    generation = 0
+        # Choose selector
+        if dual_selector:
+            selection = duel_tournament_selection(population, fitnesses,
+                                                  tournament_select,
+                                                  tournament_size,
+                                                  duel_selection)
+        else:
+            selection = tournament_selection(population, fitnesses,
+                                             tournament_select,
+                                             tournament_size)
 
-    while generation < max_generations and best_fitness < 1:
-        parents = small_tournament_selection(population_array, fitness_array,
-                                             tournmanet_size, n_parents)
-        children = create_children(parents, crossover_rate, n_children,
-                                   fixed_indicies)
-        children = swap_mutate_offspring(children, mutation_rate,
-                                         fixed_indicies)
-        population_array, fitness_array = replace_worst(children,
-                                                        population_array,
-                                                        fitness_array)
-        best_index = np.argmax(fitness_array)
-        best_fitness = fitness_array[best_index]
-        best_gene = population_array[best_index]
-        # print_sudoku(best_gene)
-        print("Generation:", str(generation).zfill(5), "=", best_fitness)
-        generation += 1
-    print_sudoku(best_gene)
+        # Generate children
+        children = create_children(selection, n_children,
+                                   crossover_rate=crossover_rate)
+
+        # Select mutator
+        if multi_mutate:
+            mutants = multi_mutate_offspring(children, mutation_rate,
+                                             fixed_indicies)
+        else:
+            mutants = swap_mutate_offspring(children, mutation_rate,
+                                            fixed_indicies)
+
+        if elitism:
+            # Add elites to the offsprint
+            population = insert_elites(mutants, elites)
+        else:
+            # Replace population completly
+            population = mutants
+
+        fitnesses = evaluate_population(population)
+        best_score = max(fitnesses)
+
+        count += 1
+
+        # Check for plateu
+        if prev_best == best_score:
+            platau_count += 1
+        else:
+            platau_count = 0
+        # Print current best score
+        print("Generation", str(count).zfill(4), best_score)
+
+    # On end:
+    #  Ensure found grid is valid;
+    #  Print status and final Sudoku grid.
+    assert check_positions(population[np.argmax(fitnesses)], sudoku_grid)
+    if best_score >= 1:
+        assert check_valid(population[np.argmax(fitnesses)], sudoku_grid)
+        print("Found a solution:")
+    elif platau_count == platau_limit:
+        print("Local Minima Found. Best solution:")
+    else:
+        print("No solution found. Best solution:")
+    print_sudoku(population[np.argmax(fitnesses)])
 
 
 if __name__ == "__main__":
-    # gene = read_sudoku("./csv_sudoku/Grid1.csv")
-    # print(gene)
-    # for box in get_boxes(gene):
-    #     print(box)
-    # for row in get_rows(gene):
-    #     print(row)
-    solved_sudoku("Grid1.csv", 1000)
+    desc = "Solve a Sudoku puzzle using Genetic Algorithms."
+    epilog = "For more information please read the README."
+
+    # Create argument parser
+    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    parser.add_argument('-i', '--input', help="Name of file.",
+                        required=True)
+    parser.add_argument('-p', '--population', help="Population size.",
+                        required=True, type=int)
+    parser.add_argument('-m', '--multi_mutate', help="Use multi mutate.",
+                        required=False, action='store_true')
+    parser.add_argument('-e', '--elitism', help="Use elitism",
+                        required=False, action='store_true')
+    parser.add_argument('-d', '--duel_selector', help="Name of file.",
+                        required=False, action='store_true')
+    args = parser.parse_args()
+
+    solve_sudoku(args.input, int(args.population), elitism=args.elitism,
+                 multi_mutate=args.multi_mutate,
+                 dual_selector=args.duel_selector)
