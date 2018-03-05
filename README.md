@@ -31,9 +31,9 @@ To convert from a Sudoku grid in the .ss format to the .csv format accepted by t
     
 ## 3.   Sudoku .CSV Format
 If you wish to write your own sudoku grid you must adhere to the following formatting:
-1. All values in the Sudoku grid must be seperated by commas.
+1. All values in the Sudoku grid must be separated by commas.
 2. All clues must be represented by their numerical equivalent. 
-3. All blank spaces must be represnted by 0.
+3. All blank spaces must be replaced by 0.
 4. No trailing or leading empty cells.
 5. The grid must be saved as a .csv file.
 
@@ -50,7 +50,7 @@ An example has been provided below.
     0,8,6,3,0,7,1,2,4
     
 ## 4.    Running the Genetic Algorithm
-To run the genetic algorithm you must select the inital population size as well as the input grid. Additionally you can set any number of flags to add advanced operators to the genetic algorithm. For example, to run the the grid contained in <name>.csv with a population of n you must run the following command:
+To run the genetic algorithm, you must select the initial population size as well as the input grid. Additionally, you can set any number of flags to add advanced operators to the genetic algorithm. For example, to run the grid contained in <name>.csv with a population of n you must run the following command:
 
     python solve_sudoku.py -i <name>.csv -p n
 
@@ -60,9 +60,9 @@ To run the genetic algorithm you must select the inital population size as well 
     optional arguments:
       -h, --help            show this help message and exit
       -i INPUT, --input INPUT
-                            name of file to run
+                            name of the file to run
       -p POPULATION, --population POPULATION
-                            inital population size
+                            set the inital population size
       -m, --multi_mutate    use multi mutate
       -e, --elitism         use elitism
       -d, --duel_selector   use duel selector
@@ -72,27 +72,63 @@ Each set of commands was run five times and the average taken.
 ### Experiment 1
 #### Grid 1
 
-    python solve_sudoku.py -i Grid1.csv -p 10 &
-    python solve_sudoku.py -i Grid1.csv -p 100 &
-    python solve_sudoku.py -i Grid1.csv -p 1000 &
+    python solve_sudoku.py -i Grid1.csv -p 10
+    python solve_sudoku.py -i Grid1.csv -p 100
+    python solve_sudoku.py -i Grid1.csv -p 1000
     python solve_sudoku.py -i Grid1.csv -p 10000
     
 #### Grid 2
 
-    python solve_sudoku.py -i Grid2.csv -p 10 &
-    python solve_sudoku.py -i Grid2.csv -p 100 &
-    python solve_sudoku.py -i Grid2.csv -p 1000 &
+    python solve_sudoku.py -i Grid2.csv -p 10
+    python solve_sudoku.py -i Grid2.csv -p 100
+    python solve_sudoku.py -i Grid2.csv -p 1000
     python solve_sudoku.py -i Grid2.csv -p 10000
 
 #### Grid 3
 
-    python solve_sudoku.py -i Grid3.csv -p 10 &
-    python solve_sudoku.py -i Grid3.csv -p 100 &
-    python solve_sudoku.py -i Grid3.csv -p 1000 &
+    python solve_sudoku.py -i Grid3.csv -p 10
+    python solve_sudoku.py -i Grid3.csv -p 100
+    python solve_sudoku.py -i Grid3.csv -p 1000
     python solve_sudoku.py -i Grid3.csv -p 10000
     
 ### Experiment 2
 #### Population = 100
     
     python solve_sudoku.py -i Grid3.csv -p 100 -d
+    python solve_sudoku.py -i Grid3.csv -p 100 -e
+    python solve_sudoku.py -i Grid3.csv -p 100 -m
+    
+#### Population = 1000
+    
+    python solve_sudoku.py -i Grid3.csv -p 1000 -d
+    python solve_sudoku.py -i Grid3.csv -p 1000 -e
+    python solve_sudoku.py -i Grid3.csv -p 1000 -m
+    
+#### Population = 10000
+    
+    python solve_sudoku.py -i Grid3.csv -p 10000 -d
+    python solve_sudoku.py -i Grid3.csv -p 10000 -e
+    python solve_sudoku.py -i Grid3.csv -p 10000 -m
+    
+### Experiment 3
+#### Grid 1
+
+    python solve_sudoku.py -i Grid1.csv -p 10 -e -m
+    python solve_sudoku.py -i Grid1.csv -p 100 -e -m
+    python solve_sudoku.py -i Grid1.csv -p 1000 -e -m
+    python solve_sudoku.py -i Grid1.csv -p 10000 -e -m
+    
+#### Grid 2
+
+    python solve_sudoku.py -i Grid2.csv -p 10 -e -m
+    python solve_sudoku.py -i Grid2.csv -p 100 -e -m
+    python solve_sudoku.py -i Grid2.csv -p 1000 -e -m
+    python solve_sudoku.py -i Grid2.csv -p 10000 -e -m
+
+#### Grid 3
+
+    python solve_sudoku.py -i Grid3.csv -p 10 -e -m
+    python solve_sudoku.py -i Grid3.csv -p 100 -e -m
+    python solve_sudoku.py -i Grid3.csv -p 1000 -e -m
+    python solve_sudoku.py -i Grid3.csv -p 10000 -e -m
             
